@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Planner</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .add-row-btn, .remove-row-btn, .submit-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Activity Planner</h1>
+    <form id="activityForm">
+        <label for="budget">Budget ($ CAD):</label>
+        <input type="number" id="budget" name="budget" required><br><br>
+        
+        <label for="time">Time Available (hours):</label>
+        <input type="number" id="time" name="time" required><br><br>
+        
+        <table id="activityTable">
+            <tr>
+                <th>Name of Activity</th>
+                <th>Cost</th>
+                <th>Time</th>
+                <th>Value</th>
+                <th></th> <!-- Empty header for remove button -->
+            </tr>
+            <tr>
+                <td><input type="text" name="activityName[]"></td>
+                <td><input type="number" name="activityCost[]"></td>
+                <td><input type="number" name="activityTime[]"></td>
+                <td><input type="number" name="activityValue[]"></td>
+                <td><button type="button" class="remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+            </tr>
+        </table>
+        <button type="button" class="add-row-btn" onclick="addRow()">Add Activity</button>
+        <button type="button" class="submit-btn" onclick="submitForm()">Submit</button>
+    </form>
+    
+    <div id="activitiesTable"></div>
+
+    <div id="sortedActivities"></div>
+
+    <script>
+        function addRow() {
+            var table = document.getElementById("activityTable");
+            var row = table.insertRow(-1);
+            var cells = [];
+            for (var i = 0; i < 4; i++) {
+                cells[i] = row.insertCell(i);
+                cells[i].innerHTML = '<input type="text" name="activityName[]">';
+            }
+            var removeCell = row.insertCell(4);
+            removeCell.innerHTML = '<button type="button" class="remove-row-btn" onclick="removeRow(this)">Remove</button>';
+        }
+
+        function removeRow(btn) {
+            var row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function submitForm() {
+            console.log("Submitting form...");
+            
+            //Create a string builder to store the data of the table where each row is seperated by ; and each column is seperated by ,
+            var stringBuilder = "";
+            var table = document.getElementById("activityTable");
+            for (var i = 1, row; row = table.rows[i]; i++) {
+                for (var j = 0, col; col = row.cells[j]; j++) {
+                    stringBuilder += col.childNodes[0].value;
+                    if(j < 4){
+                        stringBuilder += ",";
+                    }
+                }
+                stringBuilder += ";";
+            }
+            console.log(stringBuilder);
+            
+            var form = document.getElementById("activityForm");
+            var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/submit/" + stringBuilder, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        console.log("Form submission successful.");
+                        var response = xhr.responseText;
+                        var sortedActivitiesDiv = document.getElementById("sortedActivities");
+                        var activitiesTableDiv = document.getElementById("activitiesTable");
+                        if (response.startsWith("The problem does not have an optimal solution.")) {
+                            sortedActivitiesDiv.innerHTML = "<p>" + response + "</p>";
+                        } else {
+                            // Assuming the response is a string of HTML representing the table
+                            activitiesTableDiv.innerHTML = response;
+                        }
+                    } else {
+                        console.error("Form submission failed with status code: " + xhr.status);
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>

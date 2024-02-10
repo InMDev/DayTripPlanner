@@ -1,5 +1,5 @@
 # app/routes.py
-from flask import render_template, request, abort
+from flask import render_template, request, abort, render_template_string
 from app import app
 from ortools.linear_solver import pywraplp
 
@@ -93,6 +93,27 @@ def submit(string_activities):
 
             result = create_linear_programming_model(activities, budget, time)
             if result is not None:
-                return "The optimal activities are: " + ', '.join(result)
+                return render_template_string("""
+                    <section class="section">
+                        <div class="container">
+                            <h2 class="title">The Activities within your Budget and Time:</h2>
+                            <table class="table is-bordered is-fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>Activity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activity in activities %}
+                                    <tr>
+                                        <td>{{ activity }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                """, activities=result)
+
             else:
                 return "The problem does not have an optimal solution."

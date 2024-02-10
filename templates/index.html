@@ -2,92 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Planner</title>
+    <title>Day Trip Activity Planner</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        .add-row-btn, .remove-row-btn, .submit-btn {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+        #activityTable {
+            margin-top: 20px;
         }
 
     </style>
+</head><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day Trip Activity Planner</title>
+    <style>
+        #activityTable {
+            margin-top: 20px;
+        }
+        #notificationContainer {
+            /*Center in the screen*/
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            /*Make it blox*/
+            width: 50%;
+            max-width: 500px;
+
+            z-index: 9999; /* Ensure it appears above other content */
+        }
+    </style>
 </head>
 <body>
-    <h1>Activity Planner</h1>
-    <form id="activityForm">
-        <label for="budget">Budget ($ CAD):</label>
-        <input type="number" id="budget" name="budget" required><br><br>
-        
-        <label for="time">Time Available (hours):</label>
-        <input type="number" id="time" name="time" required><br><br>
-        
-        <table id="activityTable">
-            <tr>
-                <th>Name of Activity</th>
-                <th>Cost</th>
-                <th>Time</th>
-                <th>Value</th>
-                <th></th> <!-- Empty header for remove button -->
-            </tr>
-            <tr>
-                <td><input type="text" name="activityName[]"></td>
-                <td><input type="number" name="activityCost[]"></td>
-                <td><input type="number" name="activityTime[]"></td>
-                <td><input type="number" name="activityValue[]"></td>
-                <td><button type="button" class="remove-row-btn" onclick="removeRow(this)">Remove</button></td>
-            </tr>
-        </table>
-        <button type="button" class="add-row-btn" onclick="addRow()">Add Activity</button>
-        <button type="button" class="submit-btn" onclick="submitForm()">Submit</button>
-    </form>
-    
-    <div id="activitiesTable"></div>
+    <section class="section">
+        <div class="hero is-small is-primary">
+            <div class="hero-body">
+                <h1 class="title">Day Trip Activity Planner</h1>
+            </div>
+        </div>
 
-    <div id="sortedActivities"></div>
+        <div class="container pt-5">
+            <form id="activityForm">
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="budget">Budget ($):</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <input class="input" type="number" id="budget" name="budget" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label" for="time">Max Time Available (in hours):</label>
+                    </div>
+                    <div class="field-body">
+                        <div class="field">
+                            <input class="input" type="number" id="time" name="time" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <table id="activityTable" class="table is-bordered is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Name of Activity</th>
+                            <th>Cost</th>
+                            <th>Estimate time spent (in hours)</th>
+                            <th>Rank the activity (0: least prefered, The higher the value the more important)</th>
+                            <th></th> <!-- Empty header for remove button -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input class="input" type="text" name="activityName[]"></td>
+                            <td><input class="input" type="number" name="activityCost[]"></td>
+                            <td><input class="input" type="number" name="activityTime[]"></td>
+                            <td><input class="input" type="number" name="activityValue[]"></td>
+                            <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="button is-success add-row-btn" onclick="addRow()">Add Activity</button>
+                <button type="button" class="button is-primary submit-btn" onclick="submitForm()">Submit</button>
+            </form>
+            
+            <div id="activitiesTable" class="box"></div>
+            <div id="notificationContainer"></div>
+
+        </div>
+    </section>
 
     <script>
         function addRow() {
-            var table = document.getElementById("activityTable");
-            var row = table.insertRow(-1);
-            var cells = [];
-            for (var i = 0; i < 4; i++) {
-                cells[i] = row.insertCell(i);
-                cells[i].innerHTML = '<input type="text" name="activityName[]">';
-            }
-            var removeCell = row.insertCell(4);
-            removeCell.innerHTML = '<button type="button" class="remove-row-btn" onclick="removeRow(this)">Remove</button>';
+            var table = document.getElementById("activityTable").getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td><input class="input" type="text" name="activityName[]"></td>
+                <td><input class="input" type="number" name="activityCost[]"></td>
+                <td><input class="input" type="number" name="activityTime[]"></td>
+                <td><input class="input" type="number" name="activityValue[]"></td>
+                <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+            `;
         }
 
         function removeRow(btn) {
-            var row = btn.parentNode.parentNode;
+            var row = btn.closest('tr');
             row.parentNode.removeChild(row);
         }
 
         function submitForm() {
             console.log("Submitting form...");
             
-            //Create a string builder to store the data of the table where each row is seperated by ; and each column is seperated by ,
+            // Create a string builder to store the data of the table where each row is separated by ; and each column is separated by ,
             var stringBuilder = "";
             var table = document.getElementById("activityTable");
             for (var i = 1, row; row = table.rows[i]; i++) {
@@ -99,7 +132,8 @@
                 }
                 stringBuilder += ";";
             }
-            console.log(stringBuilder);
+            
+            
             
             var form = document.getElementById("activityForm");
             var formData = new FormData(form);
@@ -110,14 +144,8 @@
                     if (xhr.status === 200) {
                         console.log("Form submission successful.");
                         var response = xhr.responseText;
-                        var sortedActivitiesDiv = document.getElementById("sortedActivities");
                         var activitiesTableDiv = document.getElementById("activitiesTable");
-                        if (response.startsWith("The problem does not have an optimal solution.")) {
-                            sortedActivitiesDiv.innerHTML = "<p>" + response + "</p>";
-                        } else {
-                            // Assuming the response is a string of HTML representing the table
-                            activitiesTableDiv.innerHTML = response;
-                        }
+                        activitiesTableDiv.innerHTML = response;
                     } else {
                         console.error("Form submission failed with status code: " + xhr.status);
                     }

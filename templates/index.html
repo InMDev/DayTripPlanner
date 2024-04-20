@@ -37,14 +37,22 @@
             z-index: 9999; /* Ensure it appears above other content */
         }
     </style>
+
 </head>
 <body>
-    <section class="section">
-        <div class="hero is-small is-primary">
-            <div class="hero-body">
-                <h1 class="title">Day Trip Activity Planner</h1>
-            </div>
+    
+    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="#">
+                <h1 class="title has-text-white">Day Trip Activity Planner</h1>
+            </a>
         </div>
+    </nav>
+
+        <div class="container pt-5">
+            
+        </div>
+
 
         <div class="container pt-5">
             <form id="activityForm">
@@ -90,8 +98,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <button type="button" class="button is-success add-row-btn" onclick="addRow()">Add Activity</button>
-                <button type="button" class="button is-primary submit-btn" onclick="submitForm()">Submit</button>
+                
+                <button type="button" class="button is-success add-row-btn mr-10" onclick="addRow()">Add Activity</button>
+                <button type="button" class="button is-primary submit-btn mr-10" onclick="submitForm()">Submit</button>
+                <button type="button" class="button is-info generate-example-btn mr-10" onclick="generateExample()">Example</button>
             </form>
             
             <div id="activitiesTable" class="box"></div>
@@ -101,6 +111,39 @@
     </section>
 
     <script>
+        function generateExample() {
+            var budget = document.getElementById("budget");
+            var time = document.getElementById("time");
+            var activityTable = document.getElementById("activityTable").getElementsByTagName('tbody')[0];
+            budget.value = 100;
+            time.value = 8;
+            activityTable.innerHTML = `
+                <tr>
+                    <td><input class="input" type="text" name="activityName[]" value="Visit Stanley Park"></td>
+                    <td><input class="input" type="number" name="activityCost[]" value="0"></td>
+                    <td><input class="input" type="number" name="activityTime[]" value="2"></td>
+                    <td><input class="input" type="number" name="activityValue[]" value="3"></td>
+                    <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+                <tr>
+                    <td><input class="input" type="text" name="activityName[]" value="Visit Vancouver Aquarium"></td>
+                    <td><input class="input" type="number" name="activityCost[]" value="30"></td>
+                    <td><input class="input" type="number" name="activityTime[]" value="3"></td>
+                    <td><input class="input" type="number" name="activityValue[]" value="2"></td>
+                    <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+                <tr>
+                    <td><input class="input" type="text" name="activityName[]" value="Visit Grouse Mountain"></td>
+                    <td><input class="input" type="number" name="activityCost[]" value="50"></td>
+                    <td><input class="input" type="number" name="activityTime[]" value="4"></td>
+                    <td><input class="input" type="number" name="activityValue[]" value="1"></td>
+                    <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                </tr>
+            `;
+            
+            submitForm();
+        }
+
         function addRow() {
             var table = document.getElementById("activityTable").getElementsByTagName('tbody')[0];
             var newRow = table.insertRow();
@@ -118,42 +161,90 @@
             row.parentNode.removeChild(row);
         }
 
-        function submitForm() {
-            console.log("Submitting form...");
-            
-            // Create a string builder to store the data of the table where each row is separated by ; and each column is separated by ,
-            var stringBuilder = "";
-            var table = document.getElementById("activityTable");
-            for (var i = 1, row; row = table.rows[i]; i++) {
-                for (var j = 0, col; col = row.cells[j]; j++) {
-                    stringBuilder += col.childNodes[0].value;
-                    if(j < 4){
-                        stringBuilder += ",";
-                    }
-                }
-                stringBuilder += ";";
+        // Define a global variable to track if the popup has been shown
+var popupShown = false;
+
+function submitForm() {
+    console.log("Submitting form...");
+
+    // Create a string builder to store the data of the table
+    var stringBuilder = "";
+    var table = document.getElementById("activityTable");
+    for (var i = 1, row; row = table.rows[i]; i++) {
+        for (var j = 0, col; col = row.cells[j]; j++) {
+            stringBuilder += col.childNodes[0].value;
+            if (j < 4) {
+                stringBuilder += ",";
             }
-            
-            
-            
-            var form = document.getElementById("activityForm");
-            var formData = new FormData(form);
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/submit/" + stringBuilder, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        console.log("Form submission successful.");
-                        var response = xhr.responseText;
-                        var activitiesTableDiv = document.getElementById("activitiesTable");
-                        activitiesTableDiv.innerHTML = response;
-                    } else {
-                        console.error("Form submission failed with status code: " + xhr.status);
-                    }
-                }
-            };
-            xhr.send(formData);
         }
+        stringBuilder += ";";
+    }
+
+    var form = document.getElementById("activityForm");
+    var formData = new FormData(form);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/submit/" + stringBuilder, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                console.log("Form submission successful.");
+                var response = xhr.responseText;
+                var activitiesTableDiv = document.getElementById("activitiesTable");
+                activitiesTableDiv.innerHTML = response;
+
+                // Show popup only if it hasn't been shown before
+                if (!popupShown) {
+                    showPopup();
+                    popupShown = true; // Update flag to indicate popup has been shown
+                }
+            } else {
+                console.error("Form submission failed with status code: " + xhr.status);
+            }
+        }
+    };
+    xhr.send(formData);
+}
+
+// Function to create and show the popup
+function showPopup() {
+    // Create a div element for the popup
+    var popup = document.createElement('div');
+    popup.className = 'popup';
+
+    // Set the HTML content for the popup
+    popup.innerHTML = `
+        <article class="message is-info">
+            <div class="message-header">
+                <p>Info</p>
+                <button class="delete" aria-label="delete" onclick="closePopup()"></button>
+            </div>
+            <div class="message-body">
+                Scroll down to see the optimized plan!
+            </div>
+        </article>
+    `;
+
+    // Append the popup to the body
+    document.body.appendChild(popup);
+
+    // Apply CSS styles to center the popup
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.backgroundColor = 'white';
+    popup.style.padding = '20px';
+    popup.style.borderRadius = '5px';
+    popup.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+}
+
+// Function to close the popup
+function closePopup() {
+    var popup = document.querySelector('.popup');
+    if (popup) {
+        popup.parentNode.removeChild(popup);
+    }
+}
     </script>
 </body>
 

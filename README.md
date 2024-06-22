@@ -23,8 +23,8 @@ Note: Due to free plan, might take longer in the first launch.
 
 1. Clone this repository:
    ```
-   git clone <repository_url>
-   cd <repository_name>
+   git clone https://github.com/InMDev/DayTripPlanner.git
+   cd DayTripPlanner
    ```
 
 2. Install dependencies:

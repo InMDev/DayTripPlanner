@@ -2,113 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Day Trip Activity Planner</title>
-    <style>
-        #activityTable {
-            margin-top: 20px;
-        }
-
-    </style>
-</head><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Day Trip Activity Planner</title>
-
-    <style>
-        #activityTable {
-            margin-top: 20px;
-        }
-        #notificationContainer {
-            /*Center in the screen*/
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-
-            /*Make it blox*/
-            width: 50%;
-            max-width: 500px;
-
-            z-index: 9999; /* Ensure it appears above other content */
-        }
-    </style>
-
+    <!-- Modern Font Pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     
-    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item" href="#">
-                <h1 class="title has-text-white">Day Trip Activity Planner</h1>
-            </a>
+            <a class="title" href="#">Day Trip Activity Planner</a>
         </div>
     </nav>
 
-        <div class="container pt-5">
-            
-        </div>
-
-
-        <div class="container pt-5">
+    <div class="container">
+        <div class="box">
             <form id="activityForm">
                 <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label" for="budget">Budget ($):</label>
-                    </div>
+                    <label class="field-label label" for="budget">Budget ($):</label>
                     <div class="field-body">
-                        <div class="field">
-                            <input class="input" type="number" id="budget" name="budget" required>
-                        </div>
+                        <input class="input" type="number" id="budget" name="budget" required placeholder="e.g. 100">
                     </div>
                 </div>
                 
                 <div class="field is-horizontal">
-                    <div class="field-label is-normal">
-                        <label class="label" for="time">Max Time Available (in hours):</label>
-                    </div>
+                    <label class="field-label label" for="time">Max Time (hours):</label>
                     <div class="field-body">
-                        <div class="field">
-                            <input class="input" type="number" id="time" name="time" required>
-                        </div>
+                        <input class="input" type="number" id="time" name="time" required placeholder="e.g. 8">
                     </div>
                 </div>
                 
-                <table id="activityTable" class="table is-bordered is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>Name of Activity</th>
-                            <th>Cost</th>
-                            <th>Estimate time spent (in hours)</th>
-                            <th>Rank the activity (0: least prefered, The higher the value the more important)</th>
-                            <th></th> <!-- Empty header for remove button -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name"></td>
-                            <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost"></td>
-                            <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration"></td>
-                            <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank"></td>
-                            <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h3>Activities</h3>
+                <div style="overflow-x: auto;">
+                    <table id="activityTable">
+                        <thead>
+                            <tr>
+                                <th>Name of Activity</th>
+                                <th>Cost</th>
+                                <th>Duration (hours)</th>
+                                <th>Rank (0-10)</th>
+                                <th style="width: 100px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name" placeholder="Activity Name"></td>
+                                <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost" placeholder="0"></td>
+                                <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration" placeholder="0"></td>
+                                <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank" placeholder="0"></td>
+                                <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 
-                <button type="button" class="button is-success add-row-btn mr-10" onclick="addRow()">Add Activity</button>
-                <button type="button" class="button is-primary submit-btn mr-10" onclick="submitForm()">Submit</button>
-                <button type="button" class="button is-info generate-example-btn mr-10" onclick="generateExample()">Example</button>
+                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" class="button is-success add-row-btn" onclick="addRow()">Add Activity</button>
+                    <button type="button" class="button is-primary submit-btn" onclick="submitForm()">Optimize Plan</button>
+                    <button type="button" class="button is-info generate-example-btn" onclick="generateExample()">Load Example</button>
+                </div>
             </form>
-            
-            <div id="activitiesTable" class="box"></div>
-            <div id="notificationContainer"></div>
-
         </div>
-    </section>
+
+        <div id="activitiesTable"></div>
+        <div id="notificationContainer"></div>
+    </div>
+
+    <footer class="footer">
+        <div class="content">
+            <p>
+                <strong>Day Trip Activity Planner</strong> by Inzaghi Moniaga. More Detailed Explanation & Inspiration <a href="https://inzaghi.notion.site/Optimize-dating-plan-in-Vancouver-as-Integer-0-1-Programming-Problem-17e2b6100f324c9bb6b8ba8c14c2d956?pvs=4" target="_blank">here</a>.
+            </p>
+        </div>
+    </footer>
 
     <script>
         function generateExample() {
@@ -148,115 +117,131 @@
             var table = document.getElementById("activityTable").getElementsByTagName('tbody')[0];
             var newRow = table.insertRow();
             newRow.innerHTML = `
-                <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name"></td>
-                <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost"></td>
-                <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration"></td>
-                <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank"></td>
+                <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name" placeholder="Activity Name"></td>
+                <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost" placeholder="0"></td>
+                <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration" placeholder="0"></td>
+                <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank" placeholder="0"></td>
                 <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
             `;
         }
 
         function removeRow(btn) {
             var row = btn.closest('tr');
-            row.parentNode.removeChild(row);
-        }
-
-        // Define a global variable to track if the popup has been shown
-var popupShown = false;
-
-function submitForm() {
-    console.log("Submitting form...");
-    var submitBtn = document.querySelector('.submit-btn');
-    submitBtn.classList.add('is-loading');
-    submitBtn.setAttribute('disabled', 'true');
-
-    // Create a string builder to store the data of the table
-    var stringBuilder = "";
-    var table = document.getElementById("activityTable");
-    for (var i = 1, row; row = table.rows[i]; i++) {
-        for (var j = 0, col; col = row.cells[j]; j++) {
-            stringBuilder += col.childNodes[0].value;
-            if (j < 4) {
-                stringBuilder += ",";
-            }
-        }
-        stringBuilder += ";";
-    }
-
-    var form = document.getElementById("activityForm");
-    var formData = new FormData(form);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/submit/" + stringBuilder, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            submitBtn.classList.remove('is-loading');
-            submitBtn.removeAttribute('disabled');
-            if (xhr.status === 200) {
-                console.log("Form submission successful.");
-                var response = xhr.responseText;
-                var activitiesTableDiv = document.getElementById("activitiesTable");
-                activitiesTableDiv.innerHTML = response;
-
-                // Show popup only if it hasn't been shown before
-                if (!popupShown) {
-                    showPopup();
-                    popupShown = true; // Update flag to indicate popup has been shown
-                }
+            if (document.getElementById("activityTable").getElementsByTagName('tbody')[0].rows.length > 1) {
+                row.parentNode.removeChild(row);
             } else {
-                console.error("Form submission failed with status code: " + xhr.status);
+                // Ideally clear input instead of removing the last row, or allow removing all but logic usually needs at least one.
+                // For now, let's just clear inputs if it's the last row
+                var inputs = row.querySelectorAll('input');
+                inputs.forEach(input => input.value = '');
             }
         }
-    };
-    xhr.send(formData);
-}
 
-// Function to create and show the popup
-function showPopup() {
-    // Create a div element for the popup
-    var popup = document.createElement('div');
-    popup.className = 'popup';
+        var popupShown = false;
 
-    // Set the HTML content for the popup
-    popup.innerHTML = `
-        <article class="message is-info">
-            <div class="message-header">
-                <p>Info</p>
-                <button class="delete" aria-label="delete" onclick="closePopup()"></button>
-            </div>
-            <div class="message-body">
-                Scroll down to see the optimized plan!
-            </div>
-        </article>
-    `;
+        function submitForm() {
+            console.log("Submitting form...");
+            var submitBtn = document.querySelector('.submit-btn');
+            submitBtn.classList.add('is-loading');
+            submitBtn.setAttribute('disabled', 'true');
 
-    // Append the popup to the body
-    document.body.appendChild(popup);
+            var stringBuilder = "";
+            var table = document.getElementById("activityTable");
+            // Skipping header row 0
+            for (var i = 1, row; row = table.rows[i]; i++) {
+                // Simple validation to ensure we don't send empty rows
+                var inputs = row.getElementsByTagName("input");
+                var hasValue = false;
+                for(var k=0; k<inputs.length; k++) {
+                    if(inputs[k].value.trim() !== "") hasValue = true;
+                }
 
-    // Apply CSS styles to center the popup
-    popup.style.position = 'fixed';
-    popup.style.top = '50%';
-    popup.style.left = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    popup.style.backgroundColor = 'white';
-    popup.style.padding = '20px';
-    popup.style.borderRadius = '5px';
-    popup.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-}
+                if(!hasValue) continue;
 
-// Function to close the popup
-function closePopup() {
-    var popup = document.querySelector('.popup');
-    if (popup) {
-        popup.parentNode.removeChild(popup);
-    }
-}
+                for (var j = 0, col; col = row.cells[j]; j++) {
+                    // We only want the first 4 columns (Name, Cost, Time, Value)
+                    if (j < 4) {
+                        var val = col.querySelector('input').value;
+                        if(val === "") val = "0"; // Default to 0/empty if blank to avoid errors
+                        if(j === 0 && val === "0") val = "Unnamed Activity";
+
+                        stringBuilder += val;
+                        if (j < 3) {
+                            stringBuilder += ",";
+                        }
+                    }
+                }
+                stringBuilder += ";";
+            }
+
+            var form = document.getElementById("activityForm");
+            var formData = new FormData(form);
+            var xhr = new XMLHttpRequest();
+            // Encode the string to handle special characters properly
+            xhr.open("POST", "/submit/" + encodeURIComponent(stringBuilder), true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    submitBtn.classList.remove('is-loading');
+                    submitBtn.removeAttribute('disabled');
+                    if (xhr.status === 200) {
+                        console.log("Form submission successful.");
+                        var response = xhr.responseText;
+                        var activitiesTableDiv = document.getElementById("activitiesTable");
+                        activitiesTableDiv.innerHTML = response;
+
+                        if (!popupShown) {
+                            showPopup();
+                            popupShown = true;
+                        }
+                    } else {
+                        console.error("Form submission failed with status code: " + xhr.status);
+                        // Show error
+                        alert("An error occurred. Please check your inputs.");
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
+
+        function showPopup() {
+            var popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerHTML = `
+                <article class="message">
+                    <div class="message-header">
+                        <p>Success</p>
+                        <button class="delete" aria-label="delete" onclick="closePopup()"></button>
+                    </div>
+                    <div class="message-body">
+                        Plan optimized! Scroll down to see the results.
+                    </div>
+                </article>
+            `;
+            document.body.appendChild(popup);
+
+            // Positioning is now handled by CSS class if possible, or inline here
+            popup.style.position = 'fixed';
+            popup.style.top = '20px';
+            popup.style.right = '20px'; // Move to top right for less intrusion
+            popup.style.minWidth = '300px';
+            // Animation
+            popup.style.opacity = '0';
+            popup.style.transition = 'opacity 0.3s';
+            setTimeout(() => popup.style.opacity = '1', 10);
+
+            // Auto hide
+            setTimeout(closePopup, 5000);
+        }
+
+        function closePopup() {
+            var popup = document.querySelector('.popup');
+            if (popup) {
+                popup.style.opacity = '0';
+                setTimeout(() => {
+                    if(popup.parentNode) popup.parentNode.removeChild(popup);
+                }, 300);
+            }
+        }
     </script>
 </body>
-
-<footer class="footer">
-    <div class="content has-text-centered">
-        <p>
-            <strong>Day Trip Activity Planner</strong> by Inzaghi Moniaga. More Detailed Explanation & Inspiration <a href="https://inzaghi.notion.site/Optimize-dating-plan-in-Vancouver-as-Integer-0-1-Programming-Problem-17e2b6100f324c9bb6b8ba8c14c2d956?pvs=4">here</a>.
-        </p>
-    </div>
 </html>

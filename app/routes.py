@@ -39,12 +39,7 @@ def create_linear_programming_model(activities, budget_constraint, time_constrai
 
 @app.route('/')
 def index():
-    try:
-        with open('templates/index.html', 'r') as f:
-            template_content = f.read()
-        return template_content
-    except FileNotFoundError:
-        abort(404)
+    return render_template('index.html')
 
 @app.route('/submit/<string:string_activities>', methods=['POST']) 
 def submit(string_activities):
@@ -53,19 +48,6 @@ def submit(string_activities):
         budget = int(request.form['budget'])
         time = int(request.form['time'])
         activities = {}
-
-        # # Loop through the range of activity indices
-        # for i in range(num_activities):
-        #     activity_name = request.form.getlist('activityName[]')[i]
-        #     activity_cost = int(request.form.getlist('activityCost[]')[i])
-        #     activity_time = int(request.form.getlist('activityTime[]')[i])
-        #     activity_value = int(request.form.getlist('activityValue[]')[i])
-        #     activities[i] = {
-        #         'name': activity_name,
-        #         'cost': activity_cost,
-        #         'time': activity_time,
-        #         'value': activity_value
-        #     }
 
         #StringActivity store the data of the table where it's seperate by , for the columns and ; for the rows
         print("string_activities: ", string_activities)
@@ -93,27 +75,32 @@ def submit(string_activities):
 
             result = create_linear_programming_model(activities, budget, time)
             if result is not None:
+                # Updated HTML structure to match new CSS
                 return render_template_string("""
-                    <section class="section">
-                        <div class="container">
-                            <h2 class="title">The Activities within your Budget and Time:</h2>
-                            <table class="table is-bordered is-fullwidth">
-                                <thead>
-                                    <tr>
-                                        <th>Activity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for activity in activities %}
-                                    <tr>
-                                        <td>{{ activity }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+                    <div class="box">
+                        <h2 class="title">Optimized Plan</h2>
+                        <p>Based on your budget and time constraints, here are the recommended activities:</p>
+                        <table style="margin-top: 1rem;">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ activity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 """, activities=result)
 
             else:
-                return "The problem does not have an optimal solution."
+                return """
+                <div class="box" style="border-left: 4px solid var(--danger-color);">
+                    <h3 style="color: var(--danger-color);">No Solution Found</h3>
+                    <p>The problem does not have an optimal solution within the given constraints.</p>
+                </div>
+                """

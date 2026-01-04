@@ -1,0 +1,308 @@
+:root {
+    --primary-color: #3B82F6;
+    --primary-hover: #2563EB;
+    --background-color: #F9FAFB;
+    --surface-color: #FFFFFF;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --border-color: #E5E7EB;
+    --danger-color: #EF4444;
+    --success-color: #10B981;
+    --info-color: #3B82F6;
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    --radius: 0.375rem;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5em;
+}
+
+.navbar {
+    background-color: var(--primary-color);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.navbar-brand .title {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0;
+    text-decoration: none;
+}
+
+.container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.box {
+    background-color: var(--surface-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.field {
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+    text-decoration: none;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.button.is-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+.button.is-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.button.is-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+.button.is-danger:hover {
+    background-color: #DC2626;
+}
+
+.button.is-success {
+    background-color: var(--success-color);
+    color: white;
+}
+.button.is-success:hover {
+    background-color: #059669;
+}
+
+.button.is-info {
+    background-color: #6B7280; /* Using neutral for example button */
+    color: white;
+}
+.button.is-info:hover {
+    background-color: #4B5563;
+}
+
+.mr-10 {
+    margin-right: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    background-color: var(--surface-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: #F3F4F6;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific overrides for the dynamic inputs in table */
+td .input {
+    border: 1px solid transparent;
+    background-color: transparent;
+    padding: 0.25rem 0.5rem;
+}
+td .input:hover {
+    background-color: #F9FAFB;
+    border-color: var(--border-color);
+}
+td .input:focus {
+    background-color: white;
+    border-color: var(--primary-color);
+}
+
+/* Flex utilities replacement for bulma grid */
+.field.is-horizontal {
+    display: flex;
+    flex-direction: column;
+}
+@media (min-width: 640px) {
+    .field.is-horizontal {
+        flex-direction: row;
+        align-items: center;
+    }
+    .field-label {
+        flex-basis: 200px;
+        flex-grow: 0;
+        margin-right: 1.5rem;
+        margin-bottom: 0;
+        text-align: right;
+    }
+    .field-body {
+        flex-grow: 1;
+    }
+}
+
+/* Footer */
+.footer {
+    padding: 3rem 1.5rem 3rem;
+    background-color: #fff;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-color);
+}
+.footer .content {
+    text-align: center;
+    color: var(--text-muted);
+}
+.footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Notification / Popup */
+.popup {
+    z-index: 1000;
+}
+.message {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.message-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+}
+.message-body {
+    padding: 1.5rem;
+    background-color: white;
+    color: var(--text-main);
+}
+.delete {
+    background: rgba(0,0,0,0.2);
+    border: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+}
+.delete:before, .delete:after {
+    background-color: white;
+    content: "";
+    display: block;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%) rotate(45deg);
+    transform-origin: center center;
+}
+.delete:before {
+    height: 2px;
+    width: 50%;
+}
+.delete:after {
+    height: 50%;
+    width: 2px;
+}
+.delete:hover {
+    background-color: rgba(0,0,0,0.3);
+}
+
+/* Spinner */
+.button.is-loading {
+    color: transparent !important;
+    pointer-events: none;
+    position: relative;
+}
+.button.is-loading::after {
+    animation: spinAround 500ms infinite linear;
+    border: 2px solid #dbdbdb;
+    border-radius: 290486px;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    content: "";
+    display: block;
+    height: 1em;
+    position: relative;
+    width: 1em;
+    position: absolute;
+    left: calc(50% - (1em / 2));
+    top: calc(50% - (1em / 2));
+}
+@keyframes spinAround {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(359deg); }
+}

@@ -50,9 +50,41 @@
     </nav>
 
         <div class="container pt-5">
-            
-        </div>
+            <div class="box">
+                <h2 class="title is-4">AI Plan Generator</h2>
+                <div class="field">
+                    <label class="label">LLM Provider</label>
+                    <div class="control">
+                        <div class="select">
+                            <select id="llmProvider">
+                                <option value="openai">OpenAI (GPT-3.5)</option>
+                                <option value="gemini">Google Gemini</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="field">
+                    <label class="label">API Key</label>
+                    <div class="control">
+                        <input class="input" type="password" id="apiKey" placeholder="Enter your API Key">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Prompt</label>
+                    <div class="control">
+                        <textarea class="textarea" id="prompt" placeholder="e.g., Plan a day trip to Paris for 2 people with $500 budget..."></textarea>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary" onclick="generatePlan()">Generate Plan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="container pt-5">
             <form id="activityForm">
@@ -248,6 +280,65 @@ function closePopup() {
     var popup = document.querySelector('.popup');
     if (popup) {
         popup.parentNode.removeChild(popup);
+    }
+}
+
+async function generatePlan() {
+    const provider = document.getElementById('llmProvider').value;
+    const apiKey = document.getElementById('apiKey').value;
+    const prompt = document.getElementById('prompt').value;
+    const generateBtn = document.querySelector('button[onclick="generatePlan()"]');
+
+    if (!apiKey || !prompt) {
+        alert('Please provide both API Key and Prompt.');
+        return;
+    }
+
+    generateBtn.classList.add('is-loading');
+    generateBtn.setAttribute('disabled', 'true');
+
+    try {
+        const response = await fetch('/generate_plan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                apiKey: apiKey,
+                provider: provider,
+                prompt: prompt
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Populate form
+            document.getElementById('budget').value = data.budget;
+            document.getElementById('time').value = data.time;
+
+            const tbody = document.getElementById('activityTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.activities.forEach(activity => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><input class="input" type="text" name="activityName[]" value="${activity.name}" aria-label="Activity Name"></td>
+                    <td><input class="input" type="number" name="activityCost[]" value="${activity.cost}" aria-label="Activity Cost"></td>
+                    <td><input class="input" type="number" name="activityTime[]" value="${activity.time}" aria-label="Activity Duration"></td>
+                    <td><input class="input" type="number" name="activityValue[]" value="${activity.value}" aria-label="Activity Rank"></td>
+                    <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
+                `;
+            });
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An unexpected error occurred.');
+    } finally {
+        generateBtn.classList.remove('is-loading');
+        generateBtn.removeAttribute('disabled');
     }
 }
     </script>

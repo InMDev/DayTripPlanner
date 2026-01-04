@@ -1,7 +1,12 @@
 # app/routes.py
-from flask import render_template, request, abort, render_template_string
+from flask import render_template, request, abort, render_template_string, jsonify
 from app import app
 from ortools.linear_solver import pywraplp
+import openai
+import google.generativeai as genai
+import requests
+import json
+import os
 
 def create_linear_programming_model(activities, budget_constraint, time_constraint):
     solver = pywraplp.Solver.CreateSolver('CBC_MIXED_INTEGER_PROGRAMMING')
@@ -46,10 +51,88 @@ def index():
     except FileNotFoundError:
         abort(404)
 
+@app.route('/generate_plan', methods=['POST'])
+def generate_plan():
+    data = request.json
+    api_key = data.get('apiKey')
+    provider = data.get('provider')
+    user_prompt = data.get('prompt')
+
+    if not api_key or not provider or not user_prompt:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    system_prompt = """
+    You are a travel assistant. Generate a day trip plan based on the user's request.
+    You must return a valid JSON object with the following structure:
+    {
+        "budget": <number>,
+        "time": <number (hours)>,
+        "activities": [
+            {
+                "name": <string>,
+                "cost": <number>,
+                "time": <number (hours)>,
+                "value": <number (0-10 preference score)>
+            }
+        ]
+    }
+    Ensure the JSON is valid and contains no other text.
+    """
+
+    try:
+        if provider == 'openai':
+            client = openai.OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ]
+            )
+            content = response.choices[0].message.content
+
+        elif provider == 'gemini':
+            # Use REST API directly to avoid global state issues with the python library
+            import requests
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": f"{system_prompt}\n\nUser Request: {user_prompt}"
+                    }]
+                }]
+            }
+            response = requests.post(url, json=payload)
+            response.raise_for_status()
+            gemini_data = response.json()
+            try:
+                content = gemini_data['candidates'][0]['content']['parts'][0]['text']
+            except (KeyError, IndexError):
+                return jsonify({'error': 'Invalid response from Gemini'}), 500
+
+        else:
+            return jsonify({'error': 'Invalid provider'}), 400
+
+        # Robust JSON extraction
+        import re
+        match = re.search(r'\{.*\}', content, re.DOTALL)
+        if match:
+            json_str = match.group(0)
+            plan_data = json.loads(json_str)
+        else:
+            # Fallback to direct parsing if no braces found (unlikely for valid JSON)
+            plan_data = json.loads(content)
+        return jsonify(plan_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/submit/<string:string_activities>', methods=['POST']) 
 def submit(string_activities):
     if request.method == 'POST':
         # get form data
+        if not request.form['budget'] or not request.form['time']:
+             return "Please fill out all the fields."
         budget = int(request.form['budget'])
         time = int(request.form['time'])
         activities = {}

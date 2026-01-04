@@ -1,3 +1,5 @@
 Flask==3.0.2
 ortools==9.8.3296
 Gunicorn
+openai
+google-generativeai

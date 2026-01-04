@@ -71,7 +71,3 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-Feel free to expand on any sections or add additional details specific to your project. This README should provide a good starting point for users and developers who want to understand, install, and use your Flask application for activity selection optimization.

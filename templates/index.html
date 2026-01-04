@@ -90,11 +90,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><input class="input" type="text" name="activityName[]"></td>
-                            <td><input class="input" type="number" name="activityCost[]"></td>
-                            <td><input class="input" type="number" name="activityTime[]"></td>
-                            <td><input class="input" type="number" name="activityValue[]"></td>
-                            <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                            <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name"></td>
+                            <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost"></td>
+                            <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration"></td>
+                            <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank"></td>
+                            <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -148,11 +148,11 @@
             var table = document.getElementById("activityTable").getElementsByTagName('tbody')[0];
             var newRow = table.insertRow();
             newRow.innerHTML = `
-                <td><input class="input" type="text" name="activityName[]"></td>
-                <td><input class="input" type="number" name="activityCost[]"></td>
-                <td><input class="input" type="number" name="activityTime[]"></td>
-                <td><input class="input" type="number" name="activityValue[]"></td>
-                <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)">Remove</button></td>
+                <td><input class="input" type="text" name="activityName[]" aria-label="Activity Name"></td>
+                <td><input class="input" type="number" name="activityCost[]" aria-label="Activity Cost"></td>
+                <td><input class="input" type="number" name="activityTime[]" aria-label="Activity Duration"></td>
+                <td><input class="input" type="number" name="activityValue[]" aria-label="Activity Rank"></td>
+                <td><button type="button" class="button is-danger remove-row-btn" onclick="removeRow(this)" aria-label="Remove activity">Remove</button></td>
             `;
         }
 
@@ -166,6 +166,9 @@ var popupShown = false;
 
 function submitForm() {
     console.log("Submitting form...");
+    var submitBtn = document.querySelector('.submit-btn');
+    submitBtn.classList.add('is-loading');
+    submitBtn.setAttribute('disabled', 'true');
 
     // Create a string builder to store the data of the table
     var stringBuilder = "";
@@ -186,6 +189,8 @@ function submitForm() {
     xhr.open("POST", "/submit/" + stringBuilder, true);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
+            submitBtn.classList.remove('is-loading');
+            submitBtn.removeAttribute('disabled');
             if (xhr.status === 200) {
                 console.log("Form submission successful.");
                 var response = xhr.responseText;
